@@ -31,11 +31,11 @@ export default function RootLayout({ children }) {
                 </div>
                 <div className="nav-container">
                   <Link className="transition-all px-3 py-2 text-base font-medium text-gray-300 hover:border-b-4 border-b-green-300 m-4" href={'/'}>Home</Link>
-                  <Link className="transition-all px-3 py-2 text-base font-medium text-gray-300 hover:border-b-4 border-b-green-300 m-4" href={'/comfyui'}>Login</Link>
-                  <Link className="transition-all px-3 py-2 text-base font-medium text-gray-300 hover:border-b-4 border-b-green-300 m-4" href={'/comfyui'}>Logout</Link>
+                  <Link className="transition-all px-3 py-2 text-base font-medium text-gray-300 hover:border-b-4 border-b-green-300 m-4" href={'/login'}>Login</Link>
+                  <Link className="transition-all px-3 py-2 text-base font-medium text-gray-300 hover:border-b-4 border-b-green-300 m-4" href={'/logout'}>Logout</Link>
                   <Link className="transition-all px-3 py-2 text-base font-medium text-gray-300 hover:border-b-4 border-b-green-300 m-4" href={'/comfyui'}>ComfyUi</Link>
                   <Link className="transition-all px-3 py-2 text-base font-medium text-gray-300 hover:border-b-4 border-b-green-300 m-4" href={'/ollama'}>Ollama</Link>
-                  <Link className="transition-all px-3 py-2 text-base font-medium text-gray-300 hover:border-b-4 border-b-green-300 m-4" href={'/ollama'}>Settings</Link>
+                  <Link className="transition-all px-3 py-2 text-base font-medium text-gray-300 hover:border-b-4 border-b-green-300 m-4" href={'/settings'}>Settings</Link>
                 </div>
             </nav>
           </header>
