@@ -14,7 +14,7 @@ export default function Home() {
       </div>
 
           {/* Buttons */}
-      <div className="mt-8 flex flex-row gap-4">
+      <div className="flex flex-row gap-4">
         <Link
           href="/login"
           className="w-full p-3 bg-neutral-800 text-green-300 rounded hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-green-500 text-center transition-colors"

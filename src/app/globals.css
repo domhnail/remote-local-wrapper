@@ -21,7 +21,6 @@ body {
   color: var(--foreground);
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
-  background-image: url('/details-bg.jpg');
   background-size: cover;
   background-position: center;
   background-color: #222;
