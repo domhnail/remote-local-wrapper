@@ -1,11 +1,51 @@
 import Image from "next/image";
 
-export default function Home() {
+export default function Settings() {
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <button>Boot ComfyUi</button>
-      </main>
+    <div className="mt-20 flex items-center justify-center">
+      <div className="p-8 rounded-lg w-full max-w-md">
+        <h1 className="text-3xl text-green-300 mb-6 text-center">Settings</h1>
+        <form>
+          <label>IP Address</label>
+          <input
+            type="ip"
+            name="ip"
+            placeholder="Passphrase"
+            required
+            className="w-full p-2 mb-4 bg-neutral-700 rounded text-white focus:outline-none focus:ring-2 focus:ring-green-500"
+          />
+          <label>Ports</label>
+          <input
+            type="email"
+            name="email"
+            placeholder="Passphrase"
+            required
+            className="w-full p-2 mb-4 bg-neutral-700 rounded text-white focus:outline-none focus:ring-2 focus:ring-green-500"
+          />
+          <label>Host Name</label>
+          <input
+            type="email"
+            name="email"
+            placeholder="Passphrase"
+            required
+            className="w-full p-2 mb-4 bg-neutral-700 rounded text-white focus:outline-none focus:ring-2 focus:ring-green-500"
+          />
+          <label>Theme</label>
+           <input
+            type="email"
+            name="email"
+            placeholder="Passphrase"
+            required
+            className="w-full p-2 mb-4 bg-neutral-700 rounded text-white focus:outline-none focus:ring-2 focus:ring-green-500"
+          />
+          <button
+            type="submit"
+            className="w-full p-2 bg-neutral-900 text-green-300 rounded hover:bg-neutral-800 focus:outline-none focus:ring-2 focus:ring-green-500"
+          >
+            Submit
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

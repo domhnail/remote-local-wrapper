@@ -40,7 +40,7 @@ export default function RootLayout({ children }) {
             </nav>
           </header>
           {/* Main content */}
-          <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
+          <main className="w-full max-w-7xl mx-auto p-4 flex-1">
             {children}
           </main>
           {/* Footer */}

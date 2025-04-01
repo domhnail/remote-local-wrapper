@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-export default function Home() {
+export default function Login() {
   return (
     <div className="mt-20 flex items-center justify-center">
       <div className="p-8 rounded-lg w-full max-w-md">

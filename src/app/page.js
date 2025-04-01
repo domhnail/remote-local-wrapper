@@ -38,18 +38,18 @@ export default function Home() {
       </div>
     
       {/* Buttons */}
-    <div className="mt-8 flex flex-row gap-4">
+    <div className="mt-8 flex flex-col gap-4">
       <Link
         href="/comfyui"
-        className="w-full p-3 bg-neutral-800 text-green-300 rounded hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-green-500 text-center transition-colors"
+        className="w-full p-3 bg-neutral-800 text-green-300 rounded border-l-4 border-green-300 hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-green-500 text-center transition-colors"
       >
-        Boot ComfyUi
+        ComfyUi
       </Link>
       <Link
         href="/ollama"
-        className="w-full p-3 bg-neutral-800 text-green-300 rounded hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-green-500 text-center transition-colors"
+        className="w-full p-3 bg-neutral-800 text-green-300 rounded border-l-4 border-green-300 hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-green-500 text-center transition-colors"
       >
-        Boot Ollama
+        Ollama
       </Link>
     </div>
   </main>
