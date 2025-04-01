@@ -1,5 +1,7 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import Link from "next/link";
+import Image from "next/image";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,11 +21,34 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
-      </body>
-    </html>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <div className="grid grid-rows-[auto_1fr_auto] items-start justify-items-center min-h-screen font-[family-name:var(--font-geist-sans)]">
+        {/* Header image and nav bar */}
+          <header>
+            <nav className="flex">
+                <div className="img-container">
+                  <Image width="70" height="70" src='/bot.png' alt="futuristic robot icon image"></Image>
+                </div>
+                <div className="nav-container">
+                  <Link className="transition-all px-3 py-2 text-base font-medium text-gray-300 hover:border-b-4 border-b-green-300 m-4" href={'/'}>Home</Link>
+                  <Link className="transition-all px-3 py-2 text-base font-medium text-gray-300 hover:border-b-4 border-b-green-300 m-4" href={'/comfyui'}>Login</Link>
+                  <Link className="transition-all px-3 py-2 text-base font-medium text-gray-300 hover:border-b-4 border-b-green-300 m-4" href={'/comfyui'}>Logout</Link>
+                  <Link className="transition-all px-3 py-2 text-base font-medium text-gray-300 hover:border-b-4 border-b-green-300 m-4" href={'/comfyui'}>ComfyUi</Link>
+                  <Link className="transition-all px-3 py-2 text-base font-medium text-gray-300 hover:border-b-4 border-b-green-300 m-4" href={'/ollama'}>Ollama</Link>
+                  <Link className="transition-all px-3 py-2 text-base font-medium text-gray-300 hover:border-b-4 border-b-green-300 m-4" href={'/ollama'}>Settings</Link>
+                </div>
+            </nav>
+          </header>
+          {/* Main content */}
+          <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
+            {children}
+          </main>
+          {/* Footer */}
+          <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center text-gray-300">
+            <h2>Calvin Murray, Cole O'Donnell, Iasmin Veronez - IT Programming</h2>
+          </footer>
+      </div>
+    </body>
+  </html>
   );
 }
