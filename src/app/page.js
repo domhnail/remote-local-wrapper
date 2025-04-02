@@ -1,10 +1,15 @@
 import Image from "next/image";
 import Link from "next/link";
 
+//koboldai.net for inspiration
+// List item for models
+// Input field to download model from ollama
+// one ollama chat page and one manage models (download model, list models, list...)
+// list of models with delete option
+
 export default function Home() {
   return (
-    // <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-    <main className="flex flex-col gap-8 p-8 max-w-md mx-auto">
+    <div className="flex flex-col gap-8 p-8 max-w-md mx-auto">
     {/* Step 1 */}
       <div className="flex items-center gap-4">
         <div className="flex items-center justify-center w-10 h-10 shrink-0 rounded-full bg-green-300 text-neutral-700 font-bold">
@@ -52,6 +57,6 @@ export default function Home() {
         Ollama
       </Link>
     </div>
-  </main>
+  </div>
 );
 }
