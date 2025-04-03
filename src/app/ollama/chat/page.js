@@ -69,7 +69,7 @@ export default function OllamaChat() {
                                 type="range"
                                 step="0.1"
                                 min="0.1"
-                                max="4.0"
+                                max="2.0"
                                 value={temperature}
                                 onChange={(e) => setTemperature(Number(e.target.value))}
                                 className="w-full range range-success"
