@@ -11,14 +11,14 @@ export default function OllamaChat() {
     const [topP, setTopP] = useState(0.95);
   
   return (
-    <div className="min-h-screen flex flex-col items-center p-4">
+    <div className="flex flex-col items-center p-4">
     <div className="w-full max-w-4xl flex flex-col flex-grow">
         {/* Header */}
         <div className="flex justify-between items-center mb-4">
-            <h1 className="text-2xl font-bold text-neutral-200">Ollama</h1>
+            <h1 className="text-2xl font-bold text-base">Ollama</h1>
             <button
                 onClick={() => setShowSettings(!showSettings)}
-                className="text-m bg-green-300 text-neutral-900 rounded p-2"
+                className="text-m bg-primary text-neutral rounded p-2"
             >
                 {showSettings ? 'Hide' : 'Show'} Settings
             </button>
@@ -28,13 +28,14 @@ export default function OllamaChat() {
         {showSettings && (
             <div className="mb-4 p-4 bg-[var(--primary)] shadow-md text-[var(--foreground)]">
                 <div className="grid grid-cols-2 gap-6">
+
                     {/* Left Column - Model Selection */}
                     <div>
                         <form>
-                            <label className="block mb-2 text-lg font-medium text-gray-900 border-b-4 border-green-300 dark:text-white">
+                            <label className="block mb-2 text-lg font-medium text-base-content border-b-4 border-primary">
                                 Select a Model
                             </label>
-                            <select className="bg-neutral-700 border border-neutral-600 text-neutral-100 text-sm rounded-lg block w-full p-2.5">
+                            <select className="bg-base-200 border border-base-200 text-base-content text-sm rounded-lg block w-full p-2.5">
                                 <option defaultValue="Model 1">Model 1</option>
                                 <option value="Model 2">Model 2</option>
                                 <option value="Model 3">Model 3</option>
@@ -42,7 +43,7 @@ export default function OllamaChat() {
                             </select>
                             <button
                                 type="submit"
-                                className="w-full p-2 mt-2 bg-neutral-900 text-green-300 rounded hover:bg-neutral-800"
+                                className="w-full p-2 mt-2 bg-base-300 text-base-content rounded hover:opacity-80"
                             >
                                 Submit
                             </button>
@@ -52,7 +53,7 @@ export default function OllamaChat() {
                     {/* Right Column - Settings */}
                     <div>
                         <div className="mb-2">
-                            <label className="block text-sm font-medium">Max Tokens: {maxTokens}</label>
+                            <label className="block text-sm font-medium text-base-content">Max Tokens: {maxTokens}</label>
                             <input
                                 type="range"
                                 min="1"
@@ -64,7 +65,7 @@ export default function OllamaChat() {
                         </div>
 
                         <div className="mb-2">
-                            <label className="block text-sm font-medium">Temperature: {temperature}</label>
+                            <label className="block text-sm font-medium text-base-content">Temperature: {temperature}</label>
                             <input
                                 type="range"
                                 step="0.1"
@@ -77,7 +78,7 @@ export default function OllamaChat() {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium">Top-P: {topP}</label>
+                            <label className="block text-sm font-medium text-base-content">Top-P: {topP}</label>
                             <input
                                 type="range"
                                 step="0.05"
@@ -94,9 +95,9 @@ export default function OllamaChat() {
         )}
 
         {/* Chat History */}
-        <div className="flex-grow overflow-y-auto mb-6 rounded-lg bg-neutral-900 shadow-lg p-6 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800" style={{ maxHeight: 'calc(100vh - 200px)' }}>
+        <div className="flex-grow overflow-y-auto mb-6 rounded-lg bg-base-200 shadow-lg p-6 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800" style={{ maxHeight: 'calc(100vh - 200px)' }}>
             <div className="h-full flex flex-col items-center justify-center text-gray-400">
-              <p className="text-center mb-4 text-lg">Start a conversation with the AI chatbot.</p>
+              <p className="text-center mb-4 text-lg text-base-content">Start a conversation with the AI chatbot.</p>
             </div>
             <div className="space-y-4">
                 <div className="space-y-2">
@@ -105,7 +106,7 @@ export default function OllamaChat() {
                   <div className="flex justify-end">
                     <div className="flex flex-col items-end w-[80%]">
                       <div className="flex items-end gap-2">
-                      <div className="chat-bubble bg-neutral-700 text-white">User's message...</div>
+                      <div className="chat-bubble bg-neutral text-neutral-content">User's message...</div>
                       <div className="chat-header">You</div>
                         <img
                           src="/human.png"
@@ -126,7 +127,7 @@ export default function OllamaChat() {
                           className="w-12 h-12 rounded-full bg-orange-300"
                         />
                           <div className="chat-header">AI</div>
-                          <div className="chat-bubble bg-neutral-600">AI's response...</div>
+                          <div className="chat-bubble bg-base-300">AI's response...</div>
                       </div>
                     </div>
                   </div>
@@ -135,14 +136,14 @@ export default function OllamaChat() {
         </div>
 
         {/* Input Form */}
-        <form className="bg-neutral-800 p-4 rounded-lg shadow-lg">
+        <form className="bg-base-200 p-4 rounded-lg shadow-lg">
 
           <div className="flex gap-2">
             <input
               type="text"
               onChange={(e) => setMessage(e.target.value)}
               placeholder="Type your message..."
-              className="flex-grow px-4 py-2 border border-neutral-600 bg-neutral-700 text-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-neutral-500 focus:border-transparent"
+              className="flex-grow px-4 py-2 border border-base-100 bg-base-300 text-base rounded-lg focus:outline-none focus:ring-2 focus:ring-base focus:border-transparent"
             />
             <button
               type="submit"
