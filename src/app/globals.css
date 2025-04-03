@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin "daisyui";
 
 @theme {
   --font-sans: var(--font-geist-sans);
@@ -27,8 +28,7 @@ body {
 }
 
 header {
-  background-color: #222;
-  height: 15vh;
+  height: 10vh;
   width: 100%;
   opacity: 0.9;
   justify-items: center;

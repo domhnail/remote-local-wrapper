@@ -35,7 +35,7 @@ export default function Home() {
       </div>
       
       {/* Step 2 */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-4 mt-5">
         <div className="flex items-center justify-center w-10 h-10 shrink-0 rounded-full bg-green-300 text-neutral-700 font-bold">
           2
         </div>
@@ -43,7 +43,7 @@ export default function Home() {
       </div>
     
       {/* Buttons */}
-    <div className="mt-8 flex flex-col gap-4">
+    <div className="flex flex-col gap-4">
       <Link
         href="/comfyui"
         className="w-full p-3 bg-neutral-800 text-green-300 rounded border-l-4 border-green-300 hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-green-500 text-center transition-colors"

@@ -24,7 +24,7 @@ export default function RootLayout({ children }) {
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <div className="min-h-screen flex flex-col">
           {/* Header image and nav bar */}
-            <header>
+            <header className="bg-neutral-900">
               <nav className="flex">
                   <div className="img-container">
                     <Image width="70" height="70" src='/bot.png' alt="futuristic robot icon image"></Image>
@@ -44,9 +44,26 @@ export default function RootLayout({ children }) {
               {children}
             </main>
             {/* Footer */}
-            <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center text-gray-300">
-              <h2>Calvin Murray, Cole O'Donnell, Iasmin Veronez - IT Programming</h2>
-            </footer>
+            <footer className="footer sm:footer-horizontal bg-neutral text-neutral-content items-center p-4">
+              <aside className="grid-flow-col items-center">
+                <Image width="30" height="30" src='/bot.png' className="grayscale ml-10" alt="futuristic robot icon image"></Image>
+                <p>Calvin Murray, Cole O'Donnell, Iasmin Veronez - IT Programming {new Date().getFullYear()} </p>
+              </aside>
+              <nav className="grid-flow-col gap-4 md:place-self-center md:justify-self-end">
+                <div className="nav-container flex items-center space-x-6">
+                  {/* ComfyUI Link */}
+                  <Link href="/comfyui" className="flex items-center space-x-2 transition-all hover:opacity-80">
+                    <Image width={30} height={30} src="/comfy.png" className="grayscale" alt="ComfyUI icon" />
+                    <span className="text-base font-medium text-gray-300 hover:border-b-4 border-b-green-300">ComfyUI</span>
+                  </Link>
+                  {/* Ollama Link */}
+                  <Link href="/ollama" className="flex items-center space-x-2 transition-all hover:opacity-80">
+                    <Image width={30} height={30} src="/ollama.png" className="grayscale" alt="Ollama icon" />
+                    <span className="text-base font-medium text-gray-300 hover:border-b-4 border-b-green-300">Ollama</span>
+                  </Link>
+                </div>
+              </nav>
+          </footer>
         </div>
       </body>
     </html>

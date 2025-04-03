@@ -34,7 +34,7 @@ export default function OllamaChat() {
                             <label className="block mb-2 text-lg font-medium text-gray-900 border-b-4 border-green-300 dark:text-white">
                                 Select a Model
                             </label>
-                            <select className="bg-neutral-700 border border-neutral-500 text-neutral-100 text-sm rounded-lg block w-full p-2.5">
+                            <select className="bg-neutral-700 border border-neutral-600 text-neutral-100 text-sm rounded-lg block w-full p-2.5">
                                 <option defaultValue="Model 1">Model 1</option>
                                 <option value="Model 2">Model 2</option>
                                 <option value="Model 3">Model 3</option>
@@ -59,7 +59,7 @@ export default function OllamaChat() {
                                 max="2048"
                                 value={maxTokens}
                                 onChange={(e) => setMaxTokens(Number(e.target.value))}
-                                className="w-full accent-green-300"
+                                className="w-full range range-success"
                             />
                         </div>
 
@@ -72,7 +72,7 @@ export default function OllamaChat() {
                                 max="4.0"
                                 value={temperature}
                                 onChange={(e) => setTemperature(Number(e.target.value))}
-                                className="w-full accent-green-300"
+                                className="w-full range range-success"
                             />
                         </div>
 
@@ -85,7 +85,7 @@ export default function OllamaChat() {
                                 max="1.0"
                                 value={topP}
                                 onChange={(e) => setTopP(Number(e.target.value))}
-                                className="w-full accent-green-300"
+                                className="w-full range range-success"
                             />
                         </div>
                     </div>
@@ -104,10 +104,9 @@ export default function OllamaChat() {
                   {/* User Message */}
                   <div className="flex justify-end">
                     <div className="flex flex-col items-end w-[80%]">
-                      <p className="font-medium text-gray-200 mb-1">You</p>
                       <div className="flex items-end gap-2">
-                        <div className="bg-neutral-700 text-white p-3 rounded-lg">
-                        </div>
+                      <div className="chat-bubble bg-neutral-700 text-white">User's message...</div>
+                      <div className="chat-header">You</div>
                         <img
                           src="/human.png"
                           alt="Human"
@@ -120,15 +119,14 @@ export default function OllamaChat() {
                   {/* AI Response */}
                   <div className="flex justify-start">
                     <div className="flex flex-col items-start w-[80%]">
-                      <p className="font-medium text-gray-200 mb-1">AI</p>
                       <div className="flex items-end gap-2">
                         <img
                           src="/robot.png"
                           alt="AI"
                           className="w-12 h-12 rounded-full bg-orange-300"
                         />
-                        <div className="bg-neutral-600 p-3 rounded-lg">
-                        </div>
+                          <div className="chat-header">AI</div>
+                          <div className="chat-bubble bg-neutral-600">AI's response...</div>
                       </div>
                     </div>
                   </div>
