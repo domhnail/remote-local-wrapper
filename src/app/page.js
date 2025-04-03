@@ -10,53 +10,54 @@ import Link from "next/link";
 export default function Home() {
   return (
     <div className="flex flex-col gap-8 p-8 max-w-md mx-auto">
-    {/* Step 1 */}
+      {/* Step 1 */}
       <div className="flex items-center gap-4">
-        <div className="flex items-center justify-center w-10 h-10 shrink-0 rounded-full bg-green-300 text-neutral-700 font-bold">
+        <div className="flex items-center justify-center w-10 h-10 shrink-0 rounded-full bg-primary text-primary-content font-bold">
           1
         </div>
-        <h1 className="text-lg font-medium border-b-4 border-green-300">Login and Settings</h1>
+        <h1 className="text-lg font-medium border-b-4 border-primary">Login and Settings</h1>
       </div>
 
-          {/* Buttons */}
+      {/* Buttons */}
       <div className="flex flex-row gap-4">
+        {/* Buttons */}
         <Link
           href="/login"
-          className="w-full p-3 bg-neutral-800 text-green-300 rounded hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-green-500 text-center transition-colors"
+          className="w-full p-3 bg-neutral text-neutral-content rounded hover:opacity-80  focus:outline-none focus:ring-2 focus:ring-accent-content text-center transition-colors"
         >
-        Login
+          Login
         </Link>
         <Link
           href="/settings"
-          className="w-full p-3 bg-neutral-800 text-green-300 rounded hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-green-500 text-center transition-colors"
+          className="w-full p-3 bg-neutral text-neutral-content rounded hover:opacity-80  focus:outline-none focus:ring-2 focus:ring-accent-content text-center transition-colors"
         >
           Settings
         </Link>
       </div>
-      
+
       {/* Step 2 */}
       <div className="flex items-center gap-4 mt-5">
-        <div className="flex items-center justify-center w-10 h-10 shrink-0 rounded-full bg-green-300 text-neutral-700 font-bold">
+        <div className="flex items-center justify-center w-10 h-10 shrink-0 rounded-full bg-primary text-primary-content font-bold">
           2
         </div>
-        <h1 className="text-lg font-medium border-b-4 border-green-300">Choose what you want to use</h1>
+        <h1 className="text-lg font-medium border-b-4 border-primary">Select what you want to use</h1>
       </div>
-    
+
       {/* Buttons */}
-    <div className="flex flex-col gap-4">
-      <Link
-        href="/comfyui"
-        className="w-full p-3 bg-neutral-800 text-green-300 rounded border-l-4 border-green-300 hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-green-500 text-center transition-colors"
-      >
-        ComfyUi
-      </Link>
-      <Link
-        href="/ollama"
-        className="w-full p-3 bg-neutral-800 text-green-300 rounded border-l-4 border-green-300 hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-green-500 text-center transition-colors"
-      >
-        Ollama
-      </Link>
+      <div className="flex flex-col gap-4">
+        <Link
+          href="/comfyui"
+          className="w-full p-3 bg-neutral text-neutral-content rounded hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-accent-content text-center transition-colors"
+        >
+          ComfyUi
+        </Link>
+        <Link
+          href="/ollama"
+          className="w-full p-3 bg-neutral text-neutral-content rounded hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-accent-content text-center transition-colors"
+        >
+          Ollama
+        </Link>
+      </div>
     </div>
-  </div>
-);
+  );
 }

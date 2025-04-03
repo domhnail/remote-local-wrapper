@@ -1,5 +1,7 @@
 @import "tailwindcss";
-@plugin "daisyui";
+@plugin "daisyui" {
+  themes: corporate --default, dark --prefersdark, cupcake, light, synthwave, cyberpunk, retro;
+};
 
 @theme {
   --font-sans: var(--font-geist-sans);
@@ -19,12 +21,9 @@
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
   background-size: cover;
   background-position: center;
-  background-color: #222;
 }
 
 header {

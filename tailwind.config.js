@@ -7,5 +7,8 @@ module.exports = {
   variants: {
     extend: {},
   },
-  plugins: [require("daisyui")], // DaisyUI
+  plugins: [require('daisyui')],
+  daisyui: {
+    themes: ['light', 'dark', 'cupcake', 'corporate', 'synthwave', 'retro', 'cyberpunk'],
+  },
 };
