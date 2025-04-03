@@ -44,7 +44,7 @@ export default function OllamaModels() {
         />
         <button
           type="submit"
-          className="w-full py-2 mt-3 bg-green-300 text-neutral-700 rounded hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400"
+          className="w-full py-2 mt-3 bg-neutral-900 text-green-300 rounded hover:bg-neutral-800 focus:outline-none focus:ring-2 focus:ring-green-400"
         >
           Download
         </button>
