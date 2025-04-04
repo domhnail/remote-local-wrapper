@@ -1,7 +1,51 @@
+'use client'
+
 import Image from "next/image";
 import Link from "next/link";
+import useAuthStore from "../store/auth-store";
+import { useSettings } from "@/context/settings-context";
 
 export default function ComfyUi() {
+  const { settings } = useSettings();
+  const passphrase = useAuthStore((state) => state.passphrase);
+  const request = {
+    "host": settings.domain,
+    "port": settings.hostPort,
+    "username": settings.hostName,
+    "privateKey": "~/.ssh/comfy_rsa",
+    "passphrase": passphrase,
+    "localPort": settings.comfyPort,
+    "remoteHost": "localhost",
+    "remotePort": settings.comfyPort
+  }
+
+  const secondRequest = {
+    "host": settings.domain,
+    "port": settings.hostPort,
+    "username": settings.hostName,
+    "privateKey": "~/.ssh/comfy_rsa",
+    "passphrase": passphrase,
+    "command": "~/.comfy_start.sh"
+  }
+
+  const bootComfy = async () => {
+    // tunnel in
+    const res = await fetch('/api/ssh_tunnel', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request)
+    });
+    const data = await res.json();
+
+    // then run script to start comfy
+    const res2 = await fetch('api/ssh', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify
+    })
+    const data2 = await res2.json();
+  }
+
   return (
     <div className="flex flex-col items-center mt-20">
       {/* Header */}
@@ -14,8 +58,9 @@ export default function ComfyUi() {
       <div className="w-full max-w-md">
         <div className="flex flex-col gap-4">
           <Link
-            href="/login"
             className="flex-1 py-4 px-20 bg-neutral text-neutral-content rounded hover:opacity-80 focus:ring-green-500 transition-colors flex items-center justify-center whitespace-nowrap h-12"
+            href=""
+            onClick={bootComfy}
           >
             Boot ComfyUI
           </Link>

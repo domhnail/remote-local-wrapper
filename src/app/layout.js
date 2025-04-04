@@ -4,6 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Link from "next/link";
 import Image from "next/image";
+import { SettingsProvider } from "@/context/settings-context";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -57,7 +58,9 @@ export default function RootLayout({ children }) {
           </header>
           {/* Main content */}
           <main className="w-full mx-auto p-4 flex-1 bg-base">
-            {children}
+            <SettingsProvider>
+              {children}
+            </SettingsProvider>
           </main>
           {/* Footer */}
           <footer className="footer sm:footer-horizontal bg-base-300 text-base items-center p-4">
