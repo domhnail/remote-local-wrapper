@@ -8,11 +8,12 @@ import { useSettings } from "@/context/settings-context";
 export default function ComfyUi() {
   const { settings } = useSettings();
   const passphrase = useAuthStore((state) => state.passphrase);
+  const privateKey = useAuthStore((state) => state.privateKey);
   const request = {
     "host": settings.domain,
     "port": settings.hostPort,
     "username": settings.hostName,
-    "privateKey": 'put your path to key here',
+    "privateKey": privateKey,
     "passphrase": passphrase,
     "localPort": settings.comfyPort,
     "remoteHost": "localhost",
@@ -23,9 +24,9 @@ export default function ComfyUi() {
     "host": settings.domain,
     "port": settings.hostPort,
     "username": settings.hostName,
-    "privateKey": 'put your path to key here',
+    "privateKey": privateKey,
     "passphrase": passphrase,
-    "command": "~/.comfy_start.sh"
+    "command": "$HOME/.comfy_start.sh"
   }
 
   const bootComfy = async () => {

@@ -11,13 +11,6 @@ export async function POST(req) {
     command
   } = await req.json();
 
-  let key;
-  try {
-    key = readFileSync(privateKey);
-  } catch (err) {
-    return Response.json({ error: 'Failed to read private key' }, { status: 500 });
-  }
-
   return new Promise((resolve, reject) => {
     const conn = new Client();
 
@@ -50,7 +43,7 @@ export async function POST(req) {
       host,
       port: parseInt(port) || 22,
       username,
-      privateKey: key,
+      privateKey,
       passphrase
     });
   });

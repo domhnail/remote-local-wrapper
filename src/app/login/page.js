@@ -6,11 +6,24 @@ import useAuthStore from '../store/auth-store';
 export default function Login() {
   const [inputValue, setInputValue] = useState('');
   const setPassphrase = useAuthStore((state) => state.setPassphrase);
+  const setPrivateKey = useAuthStore((state) => state.setPrivateKey);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     setPassphrase(inputValue);
     setInputValue("");
+  };
+
+  const handleKeyUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const keyText = event.target.result;
+      setPrivateKey(keyText);
+    };
+    reader.readAsText(file);
   };
 
   return (
@@ -25,12 +38,12 @@ export default function Login() {
             onChange={(e) => setPassphrase(e.target.value)}
             className="w-full p-2 mb-4 bg-base-300 rounded text-base focus:outline-none focus:ring-2 focus:ring-green-500"
           />
-          {/* <button
-            type="submit"
-            className="w-full p-2 bg-neutral text-neutral-content rounded hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-primary"
-          >
-            Send
-          </button> */}
+          <input
+            type="file"
+            accept=""
+            onChange={handleKeyUpload}
+            className="w-full p-2 mb-4 bg-base-300 rounded text-base text-white file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:opacity-80"
+          />
         </form>
       </div>
     </div>

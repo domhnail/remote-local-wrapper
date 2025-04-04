@@ -25,13 +25,6 @@ export async function POST(req) {
   const conn = new Client();
   let tunnelServer;
 
-  let key;
-  try {
-    key = readFileSync(privateKey);
-  } catch (err) {
-    return Response.json({ error: 'Failed to read private key' }, { status: 500 });
-  }
-
   const cleanupResources = () => {
     if (tunnelServer) {
       tunnelServer.close();
@@ -80,7 +73,7 @@ export async function POST(req) {
         port: parseInt(port) || 22,
         username,
         remoteHost,
-        privateKey: key,
+        privateKey,
         passphrase,
         keepaliveInterval: 30000,
         keepaliveCountMax: 3
