@@ -27,6 +27,10 @@ export async function POST(req) {
           output += data.toString();
         });
 
+        stream.stderr.on('data', (data) => {
+          console.error('stderr: ' + data.toString());
+        });
+
         stream.on('close', (code, signal) => {
           console.log('Stream :: close :: code: ' + code + ', signal: ' + signal);
           conn.end();

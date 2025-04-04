@@ -7,9 +7,9 @@ export async function POST(req) {
     return Response.json({ error: 'Tunnel not found' }, { status: 404 });
   }
 
-  const { connection, server } = activeTunnels.get(tunnelId);
-  server.close();
-  connection.end();
+  const { conn, tunnelServer } = activeTunnels.get(tunnelId);
+  tunnelServer.close();
+  conn.end();
   activeTunnels.delete(tunnelId);
 
   return Response.json({ message: 'Tunnel closed' }, { status: 200 });

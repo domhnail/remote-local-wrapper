@@ -26,8 +26,21 @@ export default function ComfyUi() {
     "username": settings.hostName,
     "privateKey": privateKey,
     "passphrase": passphrase,
-    "command": "$HOME/.comfy_start.sh"
+    "command": "$HOME/.comfy_start"
   }
+
+  const killRequest = {
+    "host": settings.domain,
+    "port": settings.hostPort,
+    "username": settings.hostName,
+    "privateKey": privateKey,
+    "passphrase": passphrase,
+    "command": "$HOME/.comfy_kill"
+  };
+
+  const fillTunnelRequest = {
+    "tunnelId": settings.comfyPort
+  };
 
   const bootComfy = async () => {
     // tunnel in
@@ -39,13 +52,30 @@ export default function ComfyUi() {
     const data = await res.json();
 
     // then run script to start comfy
-    const res2 = await fetch('api/ssh', {
+    const res2 = await fetch('/api/ssh', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(secondRequest)
     })
     const data2 = await res2.json();
   }
+
+  const killComfy = async () => {
+    const res = await fetch('/api/ssh', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(killRequest)
+    });
+    const data = await res.json();
+    console.log("kill output:", data);
+    const res2 = await fetch('/api/tunnel_close', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(fillTunnelRequest)
+    })
+    const data2 = await res2.json();
+    console.log("kill output:", data2);
+  };
 
   return (
     <div className="flex flex-col items-center mt-20">
@@ -66,8 +96,9 @@ export default function ComfyUi() {
             Boot ComfyUI
           </Link>
           <Link
-            href="/settings"
+            href=""
             className="flex-1 py-4 px-20 bg-neutral text-neutral-content rounded hover:opacity-80 focus:ring-green-500 transition-colors flex items-center justify-center whitespace-nowrap h-12"
+            onClick={killComfy}
           >
             Kill ComfyUI
           </Link>
