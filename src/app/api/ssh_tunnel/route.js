@@ -2,92 +2,98 @@ import { Client } from 'ssh2';
 import net from 'net';
 import { readFileSync } from 'fs';
 
-// store active connections to prevent garbage collection
-const activeTunnels = new Map();
+import { activeTunnels } from '../_tunnelStore';
 
-export default async function handler(req, res) {
-  if (req.method === 'POST') {
-    const {
-      host,
-      port,
-      username,
-      privateKey,
-      passphrase,
-      localPort,
-      remoteHost,
-      remotePort
-    } = req.body;
+export async function POST(req) {
+  const body = await req.json();
 
-    // validate parameters
-    if (!host || !port || !username || !privateKey) {
-      return res.status(400).json({ error: 'Missing required parameters' });
+  const {
+    host,
+    port,
+    username,
+    privateKey,
+    passphrase,
+    localPort,
+    remoteHost,
+    remotePort
+  } = body;
+
+  if (!host || !port || !username || !privateKey) {
+    return Response.json({ error: 'Missing required parameters' }, { status: 400 });
+  }
+
+  const conn = new Client();
+  let tunnelServer;
+
+  let key;
+  try {
+    key = readFileSync(privateKey);
+  } catch (err) {
+    return Response.json({ error: 'Failed to read private key' }, { status: 500 });
+  }
+
+  const cleanupResources = () => {
+    if (tunnelServer) {
+      tunnelServer.close();
+      console.log('Stopped local server');
     }
+    activeTunnels.delete(localPort);
+  };
 
-    const conn = new Client();
-    let tunnelServer;
+  try {
+    await new Promise((resolve, reject) => {
+      conn.on('ready', () => {
+        console.log('SSH Connection Established');
 
-    conn.on('ready', () => {
-      console.log('SSH Connection Established');
+        tunnelServer = net.createServer((localSocket) => {
+          conn.forwardOut(
+            'localhost',
+            localPort,
+            remoteHost,
+            remotePort,
+            (err, stream) => {
+              if (err) return localSocket.end();
+              localSocket.pipe(stream).pipe(localSocket);
+            }
+          );
+        });
 
-      // create local port forwarding server
-      tunnelServer = net.createServer((localSocket) => {
-        conn.forwardOut(
-          'localhost',
-          localPort,
-          'localhost',
-          remotePort,
-          (err, stream) => {
-            if (err) return localSocket.end();
-            localSocket.pipe(stream).pipe(localSocket);
-          }
-        );
-      });
-
-      tunnelServer.listen(localPort, '127.0.0.1', () => {
-        activeTunnels.set(localPort, { conn, tunnelServer });
-        res.status(200).json({
-          message: `Tunnel created: localhost:${localPort} → desktop:${remotePort}`,
-          localPort
+        tunnelServer.listen(localPort, '127.0.0.1', () => {
+          activeTunnels.set(localPort, { conn, tunnelServer });
+          resolve();
         });
       });
-    });
 
-    conn.on('error', (err) => {
-      console.error('SSH Error:', err);
-      cleanupResources();
-      res.status(500).json({ error: err.message });
-    });
+      conn.on('error', (err) => {
+        console.error('SSH Error:', err);
+        cleanupResources();
+        reject(err);
+      });
 
-    conn.on('close', () => {
-      console.log('SSH Connection Closed');
-      cleanupResources();
-    });
+      conn.on('close', () => {
+        console.log('SSH Connection Closed');
+        cleanupResources();
+      });
 
-    const cleanupResources = () => {
-      if (tunnelServer) {
-        tunnelServer.close();
-        console.log('Stopped local server');
-      }
-      if (activeTunnels.has(conn._sock._handle.fd)) {
-        activeTunnels.delete(conn._sock._handle.fd);
-      }
-    };
-
-    try {
       conn.connect({
         host,
         port: parseInt(port) || 22,
         username,
-        privateKey: readFileSync('~'),
+        remoteHost,
+        privateKey: key,
         passphrase,
         keepaliveInterval: 30000,
         keepaliveCountMax: 3
       });
-    } catch (err) {
-      console.error('Connection Error:', err);
-      res.status(500).json({ error: err.message });
-    }
-  } else {
-    res.status(405).json({ error: 'Method Not Allowed' });
+    });
+
+    return Response.json({
+      message: `Tunnel created: localhost:${localPort} → desktop:${remotePort}`,
+      localPort,
+      tunnelId: localPort
+    });
+
+  } catch (err) {
+    return Response.json({ error: err.message }, { status: 500 });
   }
 }

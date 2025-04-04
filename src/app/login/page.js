@@ -25,12 +25,12 @@ export default function Login() {
             onChange={(e) => setPassphrase(e.target.value)}
             className="w-full p-2 mb-4 bg-base-300 rounded text-base focus:outline-none focus:ring-2 focus:ring-green-500"
           />
-          <button
+          {/* <button
             type="submit"
             className="w-full p-2 bg-neutral text-neutral-content rounded hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-primary"
           >
             Send
-          </button>
+          </button> */}
         </form>
       </div>
     </div>

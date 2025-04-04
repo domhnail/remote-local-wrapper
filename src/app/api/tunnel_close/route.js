@@ -1,17 +1,16 @@
-export async function closeHandler(req, res) {
-  if (req.method === 'POST') {
-    const { tunnelId } = req.body;
-    
-    if (!activeTunnels.has(tunnelId)) {
-      return res.status(404).json({ error: 'Tunnel not found' });
-    }
+import { activeTunnels } from "../_tunnelStore";
 
-    const { connection, server } = activeTunnels.get(tunnelId);
-    server.close();
-    connection.end();
-    
-    res.status(200).json({ message: 'Tunnel closed' });
-  } else {
-    res.status(405).json({ error: 'Method Not Allowed' });
+export async function POST(req) {
+  const { tunnelId } = await req.json();
+
+  if (!activeTunnels.has(tunnelId)) {
+    return Response.json({ error: 'Tunnel not found' }, { status: 404 });
   }
+
+  const { connection, server } = activeTunnels.get(tunnelId);
+  server.close();
+  connection.end();
+  activeTunnels.delete(tunnelId);
+
+  return Response.json({ message: 'Tunnel closed' }, { status: 200 });
 }

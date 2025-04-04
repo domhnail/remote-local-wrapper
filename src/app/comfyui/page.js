@@ -12,7 +12,7 @@ export default function ComfyUi() {
     "host": settings.domain,
     "port": settings.hostPort,
     "username": settings.hostName,
-    "privateKey": "~/.ssh/comfy_rsa",
+    "privateKey": 'put your path to key here',
     "passphrase": passphrase,
     "localPort": settings.comfyPort,
     "remoteHost": "localhost",
@@ -23,7 +23,7 @@ export default function ComfyUi() {
     "host": settings.domain,
     "port": settings.hostPort,
     "username": settings.hostName,
-    "privateKey": "~/.ssh/comfy_rsa",
+    "privateKey": 'put your path to key here',
     "passphrase": passphrase,
     "command": "~/.comfy_start.sh"
   }
@@ -41,7 +41,7 @@ export default function ComfyUi() {
     const res2 = await fetch('api/ssh', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify
+      body: JSON.stringify(secondRequest)
     })
     const data2 = await res2.json();
   }

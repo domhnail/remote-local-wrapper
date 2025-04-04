@@ -1,25 +1,32 @@
 import { Client } from 'ssh2';
 import { readFileSync } from 'fs';
 
-export default async function handler(req, res) {
-  if (req.method === 'POST') {
-    const {       
-      host,
-      port,
-      username,
-      privateKey,
-      passphrase,
-      command
-    } = req.body;
+export async function POST(req) {
+  const {
+    host,
+    port,
+    username,
+    privateKey,
+    passphrase,
+    command
+  } = await req.json();
 
+  let key;
+  try {
+    key = readFileSync(privateKey);
+  } catch (err) {
+    return Response.json({ error: 'Failed to read private key' }, { status: 500 });
+  }
+
+  return new Promise((resolve, reject) => {
     const conn = new Client();
 
     conn.on('ready', () => {
       console.log('Client :: ready');
       conn.exec(command, (err, stream) => {
         if (err) {
-          res.status(500).json({ error: err.message });
-          return;
+          conn.end();
+          return resolve(Response.json({ error: err.message }, { status: 500 }));
         }
 
         let output = '';
@@ -29,22 +36,22 @@ export default async function handler(req, res) {
 
         stream.on('close', (code, signal) => {
           console.log('Stream :: close :: code: ' + code + ', signal: ' + signal);
-          res.status(200).json({ output });
           conn.end();
+          return resolve(Response.json({ output }, { status: 200 }));
         });
       });
-    }).on('error', (err) => {
-      console.error('SSH connection error:', err);
-      res.status(500).json({ error: err.message });
-    }).connect({
-      host,      // IP/domain of the remote
-      port,  // SSH port
-      username,  // username for the SSH login
-      privateKey, // private key on local
-      passphrase,  // password for the user 
     });
-  } else {
-    res.status(405).json({ error: 'Method Not Allowed' });
-  }
-}
+    conn.on('error', (err) => {
+      console.error('SSH connection error:', err);
+      return resolve(Response.json({ error: err.message }, { status: 500 }));
+    });
 
+    conn.connect({
+      host,
+      port: parseInt(port) || 22,
+      username,
+      privateKey: key,
+      passphrase
+    });
+  });
+}
