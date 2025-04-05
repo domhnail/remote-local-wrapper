@@ -30,7 +30,7 @@ export default function ComfyUi() {
     "username": settings.hostName,
     "privateKey": privateKey,
     "passphrase": passphrase,
-    "command": "$HOME/.comfy_start"
+    "command": "$HOME/.ssh_scripts/.comfy_start"
   }
 
   const killRequest = {
@@ -39,7 +39,7 @@ export default function ComfyUi() {
     "username": settings.hostName,
     "privateKey": privateKey,
     "passphrase": passphrase,
-    "command": "$HOME/.comfy_kill"
+    "command": "$HOME/.ssh_scripts/.comfy_kill"
   };
 
   const fillTunnelRequest = {
