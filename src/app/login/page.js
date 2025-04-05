@@ -8,10 +8,10 @@ export default function Login() {
   const [inputValue, setInputValue] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const router = useRouter();
-  const passphrase = useAuthStore((state) => state.setPassphrase);
+  const passphrase = useAuthStore((state) => state.passphrase);
+  const privateKey = useAuthStore((state) => state.privateKey);
   const setPassphrase = useAuthStore((state) => state.setPassphrase);
-  const privateKey = useAuthStore((state) => state.setPrivateKey);
-  const setPrivateKey = useAuthStore((state) => state.setPrivateKey);
+  const setPrivateKey = useAuthStore((state) => state.setPrivateKey);  
 
   useEffect(() => {
     // If already logged in go to main page
@@ -54,7 +54,7 @@ export default function Login() {
             type="password"
             placeholder="Passphrase"
             required
-            onChange={(e) => setPassphrase(e.target.value)}
+            onChange={(e) => setInputValue(e.target.value)}
             className="w-full p-2 mb-4 bg-base-300 rounded text-base focus:outline-none focus:ring-2 focus:ring-primary"
           />
           <input

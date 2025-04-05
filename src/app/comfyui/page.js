@@ -10,10 +10,13 @@ export default function ComfyUi() {
   const [isLoading, setIsLoading] = useState(false);
   const [isReady, setIsReady] = useState(false); // Change to true to see the button
 
+  //get parameters
   const { settings } = useSettings();
   const passphrase = useAuthStore((state) => state.passphrase);
   const privateKey = useAuthStore((state) => state.privateKey);
-  const request = {
+  
+  //request for tunneling
+  const tunnelRequest = {
     "host": settings.domain,
     "port": settings.hostPort,
     "username": settings.hostName,
@@ -24,7 +27,8 @@ export default function ComfyUi() {
     "remotePort": settings.comfyPort
   }
 
-  const secondRequest = {
+  //request for comfy starting
+  const comfyStartReq = {
     "host": settings.domain,
     "port": settings.hostPort,
     "username": settings.hostName,
@@ -33,6 +37,7 @@ export default function ComfyUi() {
     "command": "$HOME/.ssh_scripts/.comfy_start"
   }
 
+  //request for comfy killing
   const killRequest = {
     "host": settings.domain,
     "port": settings.hostPort,
@@ -42,6 +47,7 @@ export default function ComfyUi() {
     "command": "$HOME/.ssh_scripts/.comfy_kill"
   };
 
+  //request for tunnel ending
   const fillTunnelRequest = {
     "tunnelId": settings.comfyPort
   };
@@ -53,19 +59,17 @@ export default function ComfyUi() {
       const res = await fetch('/api/ssh_tunnel', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(request)
+        body: JSON.stringify(tunnelRequest)
       });
       const data = await res.json();
-
       // then run script to start comfy
       const res2 = await fetch('/api/ssh', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(secondRequest)
+        body: JSON.stringify(comfyStartReq)
       })
-      const data2 = await res2.json();
-
-      setIsReady(true); 
+      //don't bother data logging
+      setIsReady(true);
     } catch (error) {
       console.error("Error booting ComfyUI:", error);
     } finally {
