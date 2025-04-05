@@ -7,69 +7,109 @@ import { useSettings } from "@/context/settings-context";
 
 export default function OllamaChat() {
     
-    const [showSettings, setShowSettings] = useState(false);
-    const [maxTokens, setMaxTokens] = useState(512);
-    const [temperature, setTemperature] = useState(0.7);
-    const [topP, setTopP] = useState(0.95);
-    const [models, setModels] = useState([]);
+  const [showSettings, setShowSettings] = useState(false);
+  const [maxTokens, setMaxTokens] = useState(512);
+  const [temperature, setTemperature] = useState(0.7);
+  const [topP, setTopP] = useState(0.95);
+  const [models, setModels] = useState([]);
 
-    const { settings } = useSettings();
-    const passphrase = useAuthStore((state) => state.passphrase);
-    const privateKey = useAuthStore((state) => state.privateKey);
+  const { settings } = useSettings();
+  const passphrase = useAuthStore((state) => state.passphrase);
+  const privateKey = useAuthStore((state) => state.privateKey);
 
-    const tunnelRequest = {
-      "host": settings.domain,
-      "port": settings.hostPort,
-      "username": settings.hostName,
-      "privateKey": privateKey,
-      "passphrase": passphrase,
-      "localPort": settings.ollamaPort,
-      "remoteHost": "localhost",
-      "remotePort": settings.ollamaPort,
-      "prompt": "How are you?",
-      "model" : ""
+  const tunnelRequest = {
+    "host": settings.domain,
+    "port": settings.hostPort,
+    "username": settings.hostName,
+    "privateKey": privateKey,
+    "passphrase": passphrase,
+    "localPort": settings.ollamaPort,
+    "remoteHost": "localhost",
+    "remotePort": settings.ollamaPort,
+    "prompt": "How are you?",
+    "model" : ""
+  }
+
+  const startOllama = {
+    "host": settings.domain,
+    "port": settings.hostPort,
+    "username": settings.hostName,
+    "privateKey": privateKey,
+    "passphrase": passphrase,
+    "command": "$HOME/.ssh_scripts/.ollama_control start-server"
+  }
+
+  const getModels = {
+    "host": settings.domain,
+    "port": settings.hostPort,
+    "username": settings.hostName,
+    "privateKey": privateKey,
+    "passphrase": passphrase,
+    "command": "$HOME/.ssh_scripts/.ollama_control list-models"
+  }
+
+  useEffect(() => {
+    createTunnel();
+    fetchModels();
+  }, []);
+
+  const createTunnel = async () => {
+    console.log("Checking if port 11434 is in use...");
+
+    try {
+        //Step 1: Kill any process using the port before opening the tunnel
+        await fetch('/api/ssh', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                host: settings.domain,
+                port: settings.hostPort,
+                username: settings.hostName,
+                privateKey: privateKey,
+                passphrase: passphrase,
+                command: "kill -9 $(lsof -t -i :11434) 2>/dev/null || fuser -k 11434/tcp"
+            }),
+        });
+
+        console.log("Existing process killed, setting up SSH tunnel...");
+
+        //Step 2: Proceed with tunnel creation
+        const tunnelRes = await fetch('/api/ollama_tunnel', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(tunnelRequest),
+        });
+
+        if (!tunnelRes.ok) {
+            throw new Error(`Tunnel setup failed: ${tunnelRes.status}`);
+        }
+
+        const tunnelData = await tunnelRes.json();
+        console.log("Tunnel response:", tunnelData);
+
+    } catch (error) {
+        console.error("Error setting up tunnel:", error);
     }
-  
-    const startOllama = {
-      "host": settings.domain,
-      "port": settings.hostPort,
-      "username": settings.hostName,
-      "privateKey": privateKey,
-      "passphrase": passphrase,
-      "command": "$HOME/.ssh_scripts/.ollama_control start-server"
-    }
+};
 
-    const getModels = {
-      "host": settings.domain,
-      "port": settings.hostPort,
-      "username": settings.hostName,
-      "privateKey": privateKey,
-      "passphrase": passphrase,
-      "command": "$HOME/.ssh_scripts/.ollama_control list-models"
-    }
+  const fetchModels = async () => {
+    const response = await fetch('/api/ssh', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(getModels)
+    });
 
-    useEffect(() => {
-      fetchModels();
-    }, []);
+    const modelResponse = await response.json();
 
-    const fetchModels = async () => {
-      const response = await fetch('/api/ssh', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(getModels)
-      });
-  
-      const modelResponse = await response.json();
-  
-      // Extract the raw text from the `output` field
-      const rawText = modelResponse.output;
-  
-      // Process the extracted text
-      const lines = rawText.split("\n").slice(1).filter(line => line.trim() !== ""); 
-      const modelsList = lines.map(line => line.split(/\s+/)[0]); 
-      
-      console.log("Extracted models:", modelsList); // Debugging step
-      setModels(modelsList);
+    // Extract the raw text from the `output` field
+    const rawText = modelResponse.output;
+
+    // Process the extracted text
+    const lines = rawText.split("\n").slice(1).filter(line => line.trim() !== ""); 
+    const modelsList = lines.map(line => line.split(/\s+/)[0]); 
+    
+    console.log("Extracted models:", modelsList); // Debugging step
+    setModels(modelsList);
   };
 
   const bootOllama = async (model) => {
@@ -80,28 +120,9 @@ export default function OllamaChat() {
         return; 
     }
 
-    const updatedTunnelRequest = {
-        ...tunnelRequest,
-        model: model, //add the selected model to the tunnel request
-    };
-
-    console.log("model name: " + updatedTunnelRequest.model)
-
     try {
-        const response = await fetch('/api/ollama_tunnel', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(updatedTunnelRequest)
-        });
-
-        if (!response.ok) {
-            throw new Error(`SSH API returned error: ${response.status}`);
-        }
-
-        const data2 = await response.json();
-        console.log("SSH Response:", data2);
-
-        // then run script to start comfy
+        
+        //run script to start comfy
         const res2 = await fetch('/api/ssh', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

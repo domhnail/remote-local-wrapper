@@ -2,7 +2,7 @@ import { Client } from 'ssh2';
 import net from 'net';
 
 export async function POST(req) {
-    const {
+    let {
       host,
       port,
       username,
@@ -15,7 +15,11 @@ export async function POST(req) {
       stream
     } = await req.json();
   
-    if (!host || !port || !username || !privateKey || !model || !prompt) {
+    if (!model){
+      model = "gemma:latest"
+    }
+
+    if (!host || !port || !username || !privateKey || !prompt) {
       console.error("Missing required parameters:");
       console.log("Host:", host);
       console.log("Port:", port);
