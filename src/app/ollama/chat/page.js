@@ -26,7 +26,8 @@ export default function OllamaChat() {
       "localPort": settings.ollamaPort,
       "remoteHost": "localhost",
       "remotePort": settings.ollamaPort,
-      "prompt": "How are you?"
+      "prompt": "How are you?",
+      "model" : ""
     }
   
     const startOllama = {
@@ -76,57 +77,46 @@ export default function OllamaChat() {
 
     if (!model) {
         console.error("Error: Model is undefined");
-        return; // Stop execution if model is missing
+        return; 
     }
 
     const updatedTunnelRequest = {
         ...tunnelRequest,
-        model: String(model), // Explicitly convert model to string
+        model: model, //add the selected model to the tunnel request
     };
 
+    console.log("model name: " + updatedTunnelRequest.model)
+
     try {
-        const res2 = await fetch('/api/ssh', {
+        const response = await fetch('/api/ollama_tunnel', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(updatedTunnelRequest)
         });
 
-        if (!res2.ok) {
-            throw new Error(`SSH API returned error: ${res2.status}`);
+        if (!response.ok) {
+            throw new Error(`SSH API returned error: ${response.status}`);
         }
 
-        const data2 = await res2.json();
+        const data2 = await response.json();
         console.log("SSH Response:", data2);
 
-    } catch (error) {
-        console.error("Error booting Ollama:", error);
-    }
-
-
-      // try {
-      //   // tunnel in
-      //   const res = await fetch('/api/ollama_tunnel', {
-      //     method: 'POST',
-      //     headers: { 'Content-Type': 'application/json' },
-      //     body: JSON.stringify(tunnelRequest)
-      //   });
-      //   const data = await res.json();
-      //   console.log(data)
-  
         // then run script to start comfy
-        // const res2 = await fetch('/api/ssh', {
-        //   method: 'POST',
-        //   headers: { 'Content-Type': 'application/json' },
-        //   body: JSON.stringify(startOllama)
-        // })
-        // const data2 = await res2.json();
+        const res2 = await fetch('/api/ssh', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(startOllama)
+        })
+        const data3 = await res2.json();
+        
+        console.log(data3)
   
-        // setIsReady(true); 
-      // } catch (error) {
-      //   console.error("Error booting Ollama:", error);
-      // } finally {
-      //   // setIsLoading(false);
-      // }
+         
+      } catch (error) {
+        console.error("Error booting Ollama:", error);
+      } finally {
+        // setIsLoading(false);
+      }
     }
   
   return (

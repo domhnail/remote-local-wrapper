@@ -16,8 +16,16 @@ export async function POST(req) {
     } = await req.json();
   
     if (!host || !port || !username || !privateKey || !model || !prompt) {
-      return Response.json({ error: 'Missing required parameters' }, { status: 400 });
-    }
+      console.error("Missing required parameters:");
+      console.log("Host:", host);
+      console.log("Port:", port);
+      console.log("Username:", username);
+      console.log("Model:", model);
+      console.log("Prompt:", prompt);
+  
+      return Response.json({ error: "Missing required parameters" }, { status: 400 });
+  }
+  
   
     const conn = new Client();
     let tunnelServer;

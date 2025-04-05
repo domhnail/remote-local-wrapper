@@ -11,6 +11,11 @@ export async function POST(req) {
     command
   } = await req.json();
 
+  if (!command || typeof command !== "string") {
+    console.error("Invalid command:", command);
+    return Response.json({ error: "Command is required and must be a string." }, { status: 400 });
+  }
+
   return new Promise((resolve, reject) => {
     const conn = new Client();
 
