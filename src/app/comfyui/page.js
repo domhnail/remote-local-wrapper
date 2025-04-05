@@ -63,7 +63,7 @@ export default function ComfyUi() {
       });
       const data = await res.json();
       // then run script to start comfy
-      const res2 = await fetch('/api/ssh', {
+      const res2 = await fetch('/api/ssh_no-out', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(comfyStartReq)
