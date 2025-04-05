@@ -1,7 +1,9 @@
 'use client';
 
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import useAuthStore from "../../store/auth-store"
+import { useSettings } from "@/context/settings-context";
 
 export default function OllamaChat() {
     
@@ -9,6 +11,123 @@ export default function OllamaChat() {
     const [maxTokens, setMaxTokens] = useState(512);
     const [temperature, setTemperature] = useState(0.7);
     const [topP, setTopP] = useState(0.95);
+    const [models, setModels] = useState([]);
+
+    const { settings } = useSettings();
+    const passphrase = useAuthStore((state) => state.passphrase);
+    const privateKey = useAuthStore((state) => state.privateKey);
+
+    const tunnelRequest = {
+      "host": settings.domain,
+      "port": settings.hostPort,
+      "username": settings.hostName,
+      "privateKey": privateKey,
+      "passphrase": passphrase,
+      "localPort": settings.ollamaPort,
+      "remoteHost": "localhost",
+      "remotePort": settings.ollamaPort,
+      "prompt": "How are you?"
+    }
+  
+    const startOllama = {
+      "host": settings.domain,
+      "port": settings.hostPort,
+      "username": settings.hostName,
+      "privateKey": privateKey,
+      "passphrase": passphrase,
+      "command": "$HOME/.ssh_scripts/.ollama_control start-server"
+    }
+
+    const getModels = {
+      "host": settings.domain,
+      "port": settings.hostPort,
+      "username": settings.hostName,
+      "privateKey": privateKey,
+      "passphrase": passphrase,
+      "command": "$HOME/.ssh_scripts/.ollama_control list-models"
+    }
+
+    useEffect(() => {
+      fetchModels();
+    }, []);
+
+    const fetchModels = async () => {
+      const response = await fetch('/api/ssh', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(getModels)
+      });
+  
+      const modelResponse = await response.json();
+  
+      // Extract the raw text from the `output` field
+      const rawText = modelResponse.output;
+  
+      // Process the extracted text
+      const lines = rawText.split("\n").slice(1).filter(line => line.trim() !== ""); 
+      const modelsList = lines.map(line => line.split(/\s+/)[0]); 
+      
+      console.log("Extracted models:", modelsList); // Debugging step
+      setModels(modelsList);
+  };
+
+  const bootOllama = async (model) => {
+    console.log(`Selected model: ${model}`);
+
+    if (!model) {
+        console.error("Error: Model is undefined");
+        return; // Stop execution if model is missing
+    }
+
+    const updatedTunnelRequest = {
+        ...tunnelRequest,
+        model: String(model), // Explicitly convert model to string
+    };
+
+    try {
+        const res2 = await fetch('/api/ssh', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(updatedTunnelRequest)
+        });
+
+        if (!res2.ok) {
+            throw new Error(`SSH API returned error: ${res2.status}`);
+        }
+
+        const data2 = await res2.json();
+        console.log("SSH Response:", data2);
+
+    } catch (error) {
+        console.error("Error booting Ollama:", error);
+    }
+
+
+      // try {
+      //   // tunnel in
+      //   const res = await fetch('/api/ollama_tunnel', {
+      //     method: 'POST',
+      //     headers: { 'Content-Type': 'application/json' },
+      //     body: JSON.stringify(tunnelRequest)
+      //   });
+      //   const data = await res.json();
+      //   console.log(data)
+  
+        // then run script to start comfy
+        // const res2 = await fetch('/api/ssh', {
+        //   method: 'POST',
+        //   headers: { 'Content-Type': 'application/json' },
+        //   body: JSON.stringify(startOllama)
+        // })
+        // const data2 = await res2.json();
+  
+        // setIsReady(true); 
+      // } catch (error) {
+      //   console.error("Error booting Ollama:", error);
+      // } finally {
+      //   // setIsLoading(false);
+      // }
+    }
   
   return (
     <div className="flex flex-col items-center p-4">
@@ -35,11 +154,15 @@ export default function OllamaChat() {
                             <label className="block mb-2 text-lg font-medium text-base-content border-b-4 border-primary">
                                 Select a Model
                             </label>
-                            <select className="bg-base-200 border border-base-200 text-base-content text-sm rounded-lg block w-full p-2.5">
-                                <option defaultValue="Model 1">Model 1</option>
-                                <option value="Model 2">Model 2</option>
-                                <option value="Model 3">Model 3</option>
-                                <option value="Model 4">Model 4</option>
+                            <select className="bg-base-200 border border-base-200 text-base-content text-sm rounded-lg block w-full p-2.5"
+                                    onChange={(event) => bootOllama(event.target.value)}
+                            >
+                              {models.map((model, index) => (
+                                <option key={index} value={model}>
+                                    {model}
+                                </option>
+                              ))}
+
                             </select>
                             <button
                                 type="submit"
