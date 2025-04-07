@@ -148,7 +148,7 @@ export default function OllamaChat() {
             <h1 className="text-2xl font-bold text-base">Ollama</h1>
             <button
                 onClick={() => setShowSettings(!showSettings)}
-                className="text-m bg-primary text-neutral rounded p-2"
+                className="text-m bg-primary text-primary-content rounded p-2"
             >
                 {showSettings ? 'Hide' : 'Show'} Settings
             </button>
@@ -243,9 +243,9 @@ export default function OllamaChat() {
                       <div className="chat-bubble bg-neutral text-neutral-content">User's message...</div>
                       <div className="chat-header">You</div>
                         <img
-                          src="/human.png"
-                          alt="Human"
-                          className="w-12 h-12 rounded-full"
+                          src="/user.png"
+                          alt="User"
+                          className="w-12 h-12 rounded-full bg-neutral-content"
                         />
                       </div>
                     </div>
@@ -258,7 +258,7 @@ export default function OllamaChat() {
                         <img
                           src="/robot.png"
                           alt="AI"
-                          className="w-12 h-12 rounded-full bg-orange-300"
+                          className="w-12 h-12 rounded-full bg-neutral-content"
                         />
                           <div className="chat-header">AI</div>
                           <div className="chat-bubble bg-base-300">AI's response...</div>
