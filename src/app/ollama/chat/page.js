@@ -1,18 +1,22 @@
 'use client';
 
-import Image from "next/image";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import useAuthStore from "../../store/auth-store"
 import { useSettings } from "@/context/settings-context";
 
+// TODO: stop prev model on select, and then start the new model
+// TODO: actual streaming to chat
+// TODO: passing max tokens, temperature and top-P to ollama in a continuous stream of model output input
 export default function OllamaChat() {
-    
+  
+  // states
   const [showSettings, setShowSettings] = useState(false);
   const [maxTokens, setMaxTokens] = useState(512);
   const [temperature, setTemperature] = useState(0.7);
   const [topP, setTopP] = useState(0.95);
   const [models, setModels] = useState([]);
 
+  // login params
   const { settings } = useSettings();
   const passphrase = useAuthStore((state) => state.passphrase);
   const privateKey = useAuthStore((state) => state.privateKey);
@@ -48,9 +52,23 @@ export default function OllamaChat() {
     "command": "$HOME/.ssh_scripts/.ollama_control list-models"
   }
 
+  const hasInitialized = useRef(false);
+
   useEffect(() => {
-    createTunnel();
-    fetchModels();
+
+    // checking if we've already inited the page and just returning instead of doing anything if we have
+    if (hasInitialized.current) return;
+    hasInitialized.current = true;
+    
+    //checking if any of our settings are null and not doing any of these if they are
+    if (!Object.values(tunnelRequest).some(ele => ele == null)) {
+      //create the tunnel
+      createTunnel();
+      //then boot ollama
+      bootOllama();
+      //then fetch the models
+      fetchModels();
+    }
   }, []);
 
   const createTunnel = async () => {
@@ -58,15 +76,15 @@ export default function OllamaChat() {
 
     try {
         //Step 1: Kill any process using the port before opening the tunnel
-        await fetch('/api/ssh', {
+        await fetch('/api/tunnel_close', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                host: settings.domain,
-                port: settings.hostPort,
-                username: settings.hostName,
-                privateKey: privateKey,
-                passphrase: passphrase,
+                "host": settings.domain,
+                "port": settings.hostPort,
+                "username": settings.hostName,
+                "privateKey": privateKey,
+                "passphrase": passphrase,
                 command: "kill -9 $(lsof -t -i :11434) 2>/dev/null || fuser -k 11434/tcp"
             }),
         });
@@ -93,6 +111,7 @@ export default function OllamaChat() {
 };
 
   const fetchModels = async () => {
+  
     const response = await fetch('/api/ssh', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -112,7 +131,30 @@ export default function OllamaChat() {
     setModels(modelsList);
   };
 
-  const bootOllama = async (model) => {
+  // this runs upon routing to the page, to get ollama up so that the other commands can be issued
+  const bootOllama = async () => {
+
+    try {
+        //run script to start ollama
+        const res2 = await fetch('/api/ssh', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(startOllama)
+        })
+        const data3 = await res2.json();
+        
+        console.log(data3)
+
+      } catch (error) {
+        console.error("Error booting Ollama:", error);
+      } finally {
+        // setIsLoading(false);
+      }
+  }
+
+  // this can be what runs on selecting from the drop down, needs to call ssh twice, 
+  // once to stop the previous model that was selected, if there was one and once to start the new model
+  const runModel = async (model) => {
     console.log(`Selected model: ${model}`);
 
     if (!model) {
@@ -121,8 +163,7 @@ export default function OllamaChat() {
     }
 
     try {
-        
-        //run script to start comfy
+        //run script to start ollama
         const res2 = await fetch('/api/ssh', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -132,13 +173,13 @@ export default function OllamaChat() {
         
         console.log(data3)
   
-         
+          
       } catch (error) {
         console.error("Error booting Ollama:", error);
       } finally {
         // setIsLoading(false);
       }
-    }
+  }
   
   return (
     <div className="flex flex-col items-center p-4">

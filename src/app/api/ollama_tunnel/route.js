@@ -1,6 +1,8 @@
 import { Client } from 'ssh2';
 import net from 'net';
 
+import { activeTunnels } from '../_tunnelStore';
+
 export async function POST(req) {
     let {
       host,
@@ -9,6 +11,7 @@ export async function POST(req) {
       privateKey,
       passphrase,
       localPort,
+      remoteHost,
       remotePort,
       model,
       prompt,
@@ -19,13 +22,12 @@ export async function POST(req) {
       model = "gemma:latest"
     }
 
-    if (!host || !port || !username || !privateKey || !prompt) {
+    if (!host || !port || !username || !privateKey) {
       console.error("Missing required parameters:");
       console.log("Host:", host);
       console.log("Port:", port);
       console.log("Username:", username);
       console.log("Model:", model);
-      console.log("Prompt:", prompt);
   
       return Response.json({ error: "Missing required parameters" }, { status: 400 });
   }
@@ -33,6 +35,14 @@ export async function POST(req) {
   
     const conn = new Client();
     let tunnelServer;
+
+    const cleanupResources = () => {
+      if (tunnelServer) {
+        tunnelServer.close();
+        console.log('Stopped local server');
+      }
+      activeTunnels.delete(localPort);
+    };
   
     try {
       await new Promise((resolve, reject) => {
@@ -43,7 +53,7 @@ export async function POST(req) {
             conn.forwardOut(
               'localhost',
               localPort,
-              'localhost',
+              remoteHost,
               remotePort,  // Ollama's API port
               (err, stream) => {
                 if (err) return localSocket.end();
@@ -54,16 +64,32 @@ export async function POST(req) {
   
           tunnelServer.listen(localPort, '127.0.0.1', () => {
             resolve();
+          }).on('error', (err) => {
+            if (err.code === 'EADDRINUSE') {
+              console.log("Tunnel already exists on port", localPort);
+              resolve(); // don't crash, just move along
+            } else {
+              reject(err);
+            }
           });
         });
   
-        conn.on('error', reject);
-        conn.on('close', () => console.log('SSH Connection Closed'));
+        conn.on('error', (err) => {
+          console.error('SSH Error:', err);
+          cleanupResources();
+          reject(err);
+        });
+
+        conn.on('close', () => {
+          console.log('SSH Connection Closed');
+          cleanupResources();
+        });
   
         conn.connect({
           host,
           port: parseInt(port) || 22,
           username,
+          remoteHost,
           privateKey,
           passphrase,
           keepaliveInterval: 30000,
