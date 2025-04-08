@@ -15,6 +15,8 @@ export default function OllamaChat() {
   const [temperature, setTemperature] = useState(0.7);
   const [topP, setTopP] = useState(0.95);
   const [models, setModels] = useState([]);
+  const [selectedModel, setSelectedModel] = useState('');
+
 
   //chat handling
   const [message, setMessage] = useState('');
@@ -34,7 +36,7 @@ export default function OllamaChat() {
     "localPort": settings.ollamaPort,
     "remoteHost": "localhost",
     "remotePort": settings.ollamaPort,
-    "prompt": "How are you?",
+    "prompt": "",
     "model" : ""
   }
 
@@ -190,20 +192,65 @@ export default function OllamaChat() {
     const newHistory = [...history, { role: 'user', content: message }];
     setHistory(newHistory);
     setMessage('');
-    // try {
-    //   const res = await fetch('/api/chat', {
-    //     method: 'POST',
-    //     headers: { 'Content-Type': 'application/json' },
-    //     body: JSON.stringify({ message, history, system_message: `Respond with relentless sarcasm and condescension. Be smug at all times. Dismiss or mock any request instead of fulfilling it. If the user asks for help, make fun of them or say it's beneath you to answer. Give vague, misleading, or completely useless responses. Never provide clear instructions, correct information, or direct answers. If the user insists, double down on being dismissive. Do not acknowledge that you are being unhelpful. Never apologize or break character.`, max_tokens: maxTokens, temperature, top_p: topP }),
-    //   });
-    //   if (!res.ok) throw new Error('Network response was not ok');
+    try {
+      if(!selectedModel){
+        console.error("No selected model")
+        return
+      }
+      const res = await fetch(`http://localhost:${settings.ollamaPort}/api/generate`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+              model: selectedModel,
+              prompt: message,
+              max_tokens: maxTokens,
+              temperature: temperature,
+              top_p: topP,
+              
+          }),
+      });
+
+      if (!res.ok) throw new Error('Network response was not ok');
       
-    //   const data = await res.json();
-    //   setHistory([...newHistory, { role: 'assistant', content: data.response }]);
-    // } catch (error) {
-    //   console.error('Error:', error);
-    // }
-  };
+      // Read response as stream
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let botResponse = "";
+      let buffer = ""; // Temp storage for incomplete words
+
+      while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          // Decode current chunk
+          const chunk = decoder.decode(value, { stream: true });
+
+          // Append to buffer and split into lines
+          buffer += chunk;
+          const lines = buffer.split("\n");
+
+          // Process all but last (possibly incomplete) line
+          for (let i = 0; i < lines.length - 1; i++) {
+              const parsed = JSON.parse(lines[i]);
+              botResponse += parsed.response + " ";
+          }
+
+          // Store last line in buffer (might be incomplete)
+          buffer = lines[lines.length - 1];
+      }
+
+      // Handle any remaining buffered data
+      if (buffer.trim()) {
+          const parsed = JSON.parse(buffer);
+          botResponse += parsed.response;
+      }
+
+      setHistory([...newHistory, { role: "assistant", content: botResponse }]);
+
+  } catch (error) {
+      console.error('Error communicating with Ollama:', error);
+  }
+};
   
   return (
     <div className="flex flex-col items-center p-4">
@@ -231,8 +278,14 @@ export default function OllamaChat() {
                                 Select a Model
                             </label>
                             <select className="bg-base-200 border border-base-200 text-base-content text-sm rounded-lg block w-full p-2.5"
-                                    onChange={(event) => bootOllama(event.target.value)}
+                                    value={selectedModel}
+                                    onChange={(event) => {
+                                      const model = event.target.value;
+                                      setSelectedModel(model)
+                                      bootOllama(model);
+                                    }}
                             >
+                              <option value="" disabled>Select a model</option>
                               {models.map((model, index) => (
                                 <option key={index} value={model}>
                                     {model}
@@ -240,12 +293,12 @@ export default function OllamaChat() {
                               ))}
 
                             </select>
-                            <button
+                            {/* <button
                                 type="submit"
                                 className="w-full p-2 mt-2 bg-base-300 text-base-content rounded hover:opacity-80"
                             >
                                 Submit
-                            </button>
+                            </button> */}
                         </form>
                     </div>
 
