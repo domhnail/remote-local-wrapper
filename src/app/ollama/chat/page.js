@@ -408,7 +408,7 @@ export default function OllamaChat() {
           <button
             type="submit"
             className="px-4 py-2 bg-primary text-primary-content rounded-lg hover:opacity-80 transition-colors"
-            disabled={!message} // Disable when empty
+            disabled={!message} 
           >
             Send
           </button>
