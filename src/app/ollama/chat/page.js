@@ -11,16 +11,16 @@ export default function OllamaChat() {
 
   // states
   const [showSettings, setShowSettings] = useState(false);
+
+  //chat handling
+  const [message, setMessage] = useState('');
+  const [history, setHistory] = useState([]);
   const [maxTokens, setMaxTokens] = useState(512);
   const [temperature, setTemperature] = useState(0.7);
   const [topP, setTopP] = useState(0.95);
   const [models, setModels] = useState([]);
   const [selectedModel, setSelectedModel] = useState('');
-
-
-  //chat handling
-  const [message, setMessage] = useState('');
-  const [history, setHistory] = useState([]);
+  const [systemprompt, setSystemPrompt] = useState('');
 
   // login params
   const { settings } = useSettings();
@@ -158,34 +158,34 @@ export default function OllamaChat() {
     }
   }
 
-  // this can be what runs on selecting from the drop down, needs to call ssh twice, 
-  // once to stop the previous model that was selected, if there was one and once to start the new model
-  const runModel = async (model) => {
-    console.log(`Selected model: ${model}`);
+  // // this can be what runs on selecting from the drop down, needs to call ssh twice, 
+  // // once to stop the previous model that was selected, if there was one and once to start the new model
+  // const runModel = async (model) => {
+  //   console.log(`Selected model: ${model}`);
 
-    if (!model) {
-      console.error("Error: Model is undefined");
-      return;
-    }
+  //   if (!model) {
+  //     console.error("Error: Model is undefined");
+  //     return;
+  //   }
 
-    try {
-      //run script to start ollama
-      const res2 = await fetch('/api/ssh', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(startOllama)
-      })
-      const data3 = await res2.json();
+  //   try {
+  //     //run script to start ollama
+  //     const res2 = await fetch('/api/ssh', {
+  //       method: 'POST',
+  //       headers: { 'Content-Type': 'application/json' },
+  //       body: JSON.stringify(startOllama)
+  //     })
+  //     const data3 = await res2.json();
 
-      console.log(data3)
+  //     console.log(data3)
 
 
-    } catch (error) {
-      console.error("Error booting Ollama:", error);
-    } finally {
-      // setIsLoading(false);
-    }
-  }
+  //   } catch (error) {
+  //     console.error("Error booting Ollama:", error);
+  //   } finally {
+  //     // setIsLoading(false);
+  //   }
+  // }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -197,16 +197,28 @@ export default function OllamaChat() {
         console.error("No selected model")
         return
       }
-      const res = await fetch(`http://localhost:${settings.ollamaPort}/api/generate`, {
+      const res = await fetch(`http://${tunnelRequest.remoteHost}:${settings.ollamaPort}/api/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           model: selectedModel,
-          prompt: message,
-          max_tokens: maxTokens,
-          temperature: temperature,
-          top_p: topP,
-
+          messages: [
+            {
+              role : "system",
+              content: systemprompt
+            },
+            ...newHistory,
+            {
+            role : "user",
+            content : message
+            }
+          ],
+          stream: false,
+          options : {
+            max_tokens: maxTokens,
+            temperature: temperature,
+            top_p: topP,
+          }
         }),
       });
 
@@ -232,7 +244,7 @@ export default function OllamaChat() {
         // Process all but last (possibly incomplete) line
         for (let i = 0; i < lines.length - 1; i++) {
           const parsed = JSON.parse(lines[i]);
-          botResponse += parsed.response + " ";
+          botResponse += parsed.message.content + " ";
         }
 
         // Store last line in buffer (might be incomplete)
@@ -242,7 +254,7 @@ export default function OllamaChat() {
       // Handle any remaining buffered data
       if (buffer.trim()) {
         const parsed = JSON.parse(buffer);
-        botResponse += parsed.response;
+        botResponse += parsed.message.content;
       }
 
       setHistory([...newHistory, { role: "assistant", content: botResponse }]);
@@ -341,79 +353,103 @@ export default function OllamaChat() {
                     className="w-full range range-success"
                   />
                 </div>
+                <div>
+                  <label className="block text-sm font-medium text-base-content">System prompt: </label>
+                  <textarea
+                    value={systemprompt}
+                    rows={1}
+                    onChange={(e) => setSystemPrompt((e.target.value))}
+                    className="flex-grow resize-none overflow-hidden px-4 py-2 border border-base-100 bg-base-300 text-base rounded-lg focus:outline-none focus:ring-2 focus:ring-base focus:border-transparent"
+                    onInput={(e) => {
+                      e.target.style.height = "auto";
+                      e.target.style.height = e.target.scrollHeight + "px";
+                    }}
+                  />
+                </div>
               </div>
             </div>
           </div>
         )}
-
+        <div className="flex flex-col gap-4">
         {/* Chat History */}
-        <div className="flex-grow overflow-y-auto mb-6 rounded-lg bg-base-200 shadow-lg p-6 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800" style={{ maxHeight: 'calc(100vh - 200px)' }}>
-          <div className="h-full flex flex-col items-center justify-center text-gray-400">
-            <p className="text-center mb-4 text-lg text-base-content">Start a conversation with the AI chatbot.</p>
-          </div>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              {history.map((entry, index) => (
-                entry.role === 'user' ? (
-                  // user message
-                  <div key={index} className="flex justify-end">
-                    <div className="flex flex-col items-end w-[80%]">
-                      <div className="flex items-end gap-2">
-                        <div className="chat-bubble bg-neutral text-neutral-content">
-                          {entry.content}
-                        </div>
-                        <div className="chat-header">You</div>
-                        <img
-                          src="/user.png"
-                          alt="User"
-                          className="w-12 h-12 rounded-full bg-neutral-content"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  // ai message
-                  <div key={index} className="flex justify-start">
-                    <div className="flex flex-col items-start w-[80%]">
-                      <div className="flex items-end gap-2">
-                        <img
-                          src="/robot.png"
-                          alt="AI"
-                          className="w-12 h-12 rounded-full bg-neutral-content"
-                        />
-                        <div className="chat-header">AI</div>
-                        <div className="chat-bubble bg-base-300">
-                          {entry.content}
+          <div className="flex-grow overflow-y-auto mb-6 rounded-lg bg-base-200 shadow-lg p-6 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800" style={{ maxHeight: 'calc(100vh - 200px)' }}>
+            <div className="h-full flex flex-col items-center justify-center text-gray-400">
+              <p className="text-center mb-4 text-lg text-base-content">Start a conversation with the AI chatbot.</p>
+            </div>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                {history.map((entry, index) => (
+                  entry.role === 'user' ? (
+                    // user message
+                    <div key={index} className="flex justify-end">
+                      <div className="flex flex-col items-end w-[80%]">
+                        <div className="flex items-end gap-2">
+                          <div className="chat-bubble bg-neutral text-neutral-content">
+                            {entry.content}
+                          </div>
+                          <div className="chat-header">You</div>
+                          <img
+                            src="/user.png"
+                            alt="User"
+                            className="w-12 h-12 rounded-full bg-neutral-content"
+                          />
                         </div>
                       </div>
                     </div>
-                  </div>
-                )
-              ))}
+                  ) : (
+                    // ai message
+                    <div key={index} className="flex justify-start">
+                      <div className="flex flex-col items-start w-[80%]">
+                        <div className="flex items-end gap-2">
+                          <img
+                            src="/robot.png"
+                            alt="AI"
+                            className="w-12 h-12 rounded-full bg-neutral-content"
+                          />
+                          <div className="chat-header">AI</div>
+                          <div className="chat-bubble bg-base-300">
+                            {entry.content}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )
+                ))}
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Input Form */}
-      <form onSubmit={handleSubmit} className="bg-base-200 p-4 rounded-lg shadow-lg">
-        <div className="flex gap-2">
-          <input
-            type="text"
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            placeholder="Type your message..."
-            className="flex-grow px-4 py-2 border border-base-100 bg-base-300 text-base rounded-lg focus:outline-none focus:ring-2 focus:ring-base focus:border-transparent"
-          />
-          <button
-            type="submit"
-            className="px-4 py-2 bg-primary text-primary-content rounded-lg hover:opacity-80 transition-colors"
-            disabled={!message} 
-          >
-            Send
-          </button>
-        </div>
-      </form>
+        {/* Input Form */}
+        <form onSubmit={handleSubmit} className="bg-base-200 p-4 rounded-lg shadow-lg flex gap-2">
+          <div className="flex-grow flex gap-2">
+            <textarea
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              placeholder="Type your message..."
+              rows={1}
+              className="flex-grow resize-none overflow-hidden px-4 py-2 border border-base-100 bg-base-300 text-base rounded-lg focus:outline-none focus:ring-2 focus:ring-base focus:border-transparent"
+              onInput={(e) => {
+                e.target.style.height = "auto";
+                e.target.style.height = e.target.scrollHeight + "px";
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();  // prevent new line on enter
+                  e.target.form.requestSubmit(); // trigger the send function
+                }
+              }}
+            />
+            <button
+              type="submit"
+              className="px-4 py-2 bg-primary text-primary-content rounded-lg hover:opacity-80 transition-colors"
+              disabled={!message} 
+            >
+              Send
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }
