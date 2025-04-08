@@ -16,6 +16,10 @@ export default function OllamaChat() {
   const [topP, setTopP] = useState(0.95);
   const [models, setModels] = useState([]);
 
+  //chat handling
+  const [message, setMessage] = useState('');
+  const [history, setHistory] = useState([]);
+
   // login params
   const { settings } = useSettings();
   const passphrase = useAuthStore((state) => state.passphrase);
@@ -180,6 +184,26 @@ export default function OllamaChat() {
         // setIsLoading(false);
       }
   }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const newHistory = [...history, { role: 'user', content: message }];
+    setHistory(newHistory);
+    setMessage('');
+    // try {
+    //   const res = await fetch('/api/chat', {
+    //     method: 'POST',
+    //     headers: { 'Content-Type': 'application/json' },
+    //     body: JSON.stringify({ message, history, system_message: `Respond with relentless sarcasm and condescension. Be smug at all times. Dismiss or mock any request instead of fulfilling it. If the user asks for help, make fun of them or say it's beneath you to answer. Give vague, misleading, or completely useless responses. Never provide clear instructions, correct information, or direct answers. If the user insists, double down on being dismissive. Do not acknowledge that you are being unhelpful. Never apologize or break character.`, max_tokens: maxTokens, temperature, top_p: topP }),
+    //   });
+    //   if (!res.ok) throw new Error('Network response was not ok');
+      
+    //   const data = await res.json();
+    //   setHistory([...newHistory, { role: 'assistant', content: data.response }]);
+    // } catch (error) {
+    //   console.error('Error:', error);
+    // }
+  };
   
   return (
     <div className="flex flex-col items-center p-4">
@@ -275,47 +299,55 @@ export default function OllamaChat() {
               <p className="text-center mb-4 text-lg text-base-content">Start a conversation with the AI chatbot.</p>
             </div>
             <div className="space-y-4">
-                <div className="space-y-2">
-                  
-                  {/* User Message */}
-                  <div className="flex justify-end">
-                    <div className="flex flex-col items-end w-[80%]">
-                      <div className="flex items-end gap-2">
-                      <div className="chat-bubble bg-neutral text-neutral-content">User's message...</div>
-                      <div className="chat-header">You</div>
-                        <img
-                          src="/user.png"
-                          alt="User"
-                          className="w-12 h-12 rounded-full bg-neutral-content"
-                        />
+              <div className="space-y-2">
+                {history.map((entry, index) => (
+                  entry.role === 'user' ? (
+                    // user message
+                    <div key={index} className="flex justify-end">
+                      <div className="flex flex-col items-end w-[80%]">
+                        <div className="flex items-end gap-2">
+                          <div className="chat-bubble bg-neutral text-neutral-content">
+                            {entry.content}
+                          </div>
+                          <div className="chat-header">You</div>
+                          <img
+                            src="/user.png"
+                            alt="User"
+                            className="w-12 h-12 rounded-full bg-neutral-content"
+                          />
+                        </div>
                       </div>
                     </div>
-                  </div>
-
-                  {/* AI Response */}
-                  <div className="flex justify-start">
-                    <div className="flex flex-col items-start w-[80%]">
-                      <div className="flex items-end gap-2">
-                        <img
-                          src="/robot.png"
-                          alt="AI"
-                          className="w-12 h-12 rounded-full bg-neutral-content"
-                        />
-                          <div className="chat-header">AI</div>
-                          <div className="chat-bubble bg-base-300">AI's response...</div>
+                    ) : (
+                    // ai message
+                      <div key={index} className="flex justify-start">
+                        <div className="flex flex-col items-start w-[80%]">
+                          <div className="flex items-end gap-2">
+                            <img
+                              src="/robot.png"
+                              alt="AI"
+                              className="w-12 h-12 rounded-full bg-neutral-content"
+                            />
+                            <div className="chat-header">AI</div>
+                            <div className="chat-bubble bg-base-300">
+                            {entry.content}
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
+                    )
+                  ))}
                 </div>
+              </div>
             </div>
         </div>
 
         {/* Input Form */}
-        <form className="bg-base-200 p-4 rounded-lg shadow-lg">
-
+        <form onSubmit={handleSubmit} className="bg-base-200 p-4 rounded-lg shadow-lg">
           <div className="flex gap-2">
             <input
               type="text"
+              value={message}
               onChange={(e) => setMessage(e.target.value)}
               placeholder="Type your message..."
               className="flex-grow px-4 py-2 border border-base-100 bg-base-300 text-base rounded-lg focus:outline-none focus:ring-2 focus:ring-base focus:border-transparent"
@@ -324,13 +356,12 @@ export default function OllamaChat() {
               type="submit"
               className={`px-4 py-2 rounded-lg`}
             >
-              
-                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                "Send"
+            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin">
+            </div>
+            Send
             </button>
           </div>
         </form>
       </div>
-    </div>
   );
 }
