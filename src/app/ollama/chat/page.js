@@ -170,11 +170,7 @@ export default function OllamaChat() {
               role : "system",
               content: systemprompt
             },
-            ...newHistory,
-            {
-            role : "user",
-            content : message
-            }
+            ...newHistory
           ],
           stream: false,
           options : {
