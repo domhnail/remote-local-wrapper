@@ -14,15 +14,13 @@ export default function OllamaModels() {
   const [isReady, setIsReady] = useState(false);
   const [downloadLog, setDownloadLog] = useState("");
 
-  const passphrase = useAuthStore((state) => state.passphrase);
-  const privateKey = useAuthStore((state) => state.privateKey);
+  const token = useAuthStore((state) => state.sessionToken);
 
   const startOllama = {
     "host": settings.domain,
     "port": settings.hostPort,
     "username": settings.hostName,
-    "privateKey": privateKey,
-    "passphrase": passphrase,
+    "token": token,
     "command": "$HOME/.ssh_scripts/.ollama_control start-server"
   }
 
@@ -30,8 +28,7 @@ export default function OllamaModels() {
     "host": settings.domain,
     "port": settings.hostPort,
     "username": settings.hostName,
-    "privateKey": privateKey,
-    "passphrase": passphrase,
+    "token": token,
     "command": "$HOME/.ssh_scripts/.ollama_control list-models"
   }
 
@@ -39,8 +36,7 @@ export default function OllamaModels() {
     "host": settings.domain,
     "port": settings.hostPort,
     "username": settings.hostName,
-    "privateKey": privateKey,
-    "passphrase": passphrase,
+    "token": token,
   }
 
 
@@ -49,7 +45,7 @@ export default function OllamaModels() {
     bootOllama();
     //then fetch the models
     fetchModels();
-  }, [settings, privateKey, passphrase]);
+  }, [settings, token]);
 
   const bootOllama = async () => {
 

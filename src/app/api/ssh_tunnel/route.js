@@ -1,24 +1,29 @@
 import { Client } from 'ssh2';
 import net from 'net';
-import { readFileSync } from 'fs';
-
 import { activeTunnels } from '../_tunnelStore';
+import { getSession } from '@/app/lib/sessionStore';
 
 export async function POST(req) {
   const body = await req.json();
 
   const {
+    token,
     host,
     port,
     username,
-    privateKey,
-    passphrase,
     localPort,
     remoteHost,
     remotePort
   } = body;
 
-  if (!host || !port || !username || !privateKey) {
+  const session = getSession(token);
+  if (!session) {
+    return Response.json({ error: 'Invalid or expired session token' }, { status: 401 });
+  }
+
+  const { privateKey, passphrase } = session;
+
+  if (!host || !port || !username || !localPort || !remoteHost || !remotePort) {
     return Response.json({ error: 'Missing required parameters' }, { status: 400 });
   }
 
@@ -72,7 +77,6 @@ export async function POST(req) {
         host,
         port: parseInt(port) || 22,
         username,
-        remoteHost,
         privateKey,
         passphrase,
         keepaliveInterval: 30000,

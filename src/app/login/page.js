@@ -2,47 +2,64 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import useAuthStore from '../store/auth-store';
+import useAuthStore from "../store/auth-store";
 
 export default function Login() {
-  const [inputValue, setInputValue] = useState('');
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [passphrase, setPassphrase] = useState('');
+  const [privateKey, setPrivateKey] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
-  const passphrase = useAuthStore((state) => state.passphrase);
-  const privateKey = useAuthStore((state) => state.privateKey);
-  const setPassphrase = useAuthStore((state) => state.setPassphrase);
-  const setPrivateKey = useAuthStore((state) => state.setPrivateKey);  
 
+  const setSessionToken = useAuthStore((state) => state.setSessionToken);
+  const sessionToken = useAuthStore((state) => state.sessionToken);
   useEffect(() => {
-    // If already logged in go to main page
-    if (passphrase && privateKey) {
-      setIsLoggedIn(true);
+    if (sessionToken) {
       router.push('/');
     }
-  }, [passphrase, privateKey, router]);
+  }, [sessionToken, router]);
 
-  const handleSubmit = (e) => {
+  const handleSelectKeyFile = async () => {
+    try {
+      const input = document.createElement("input");
+      input.type = "file";  
+      input.onchange = async () => {
+        const file = input.files[0];
+        if (file) {
+          const keyText = await file.text();
+          setPrivateKey(keyText);
+        }
+      };
+  
+      input.click();  // Trigger the file picker
+    } catch (err) {
+      console.error("Key file selection failed:", err);
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setPassphrase(inputValue);
-    setInputValue("");
-    setIsLoggedIn(true);
-    router.push('/');
-  };
+    setIsSubmitting(true);
 
-  const handleKeyUpload = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+    try {
+      const res = await fetch('/api/session/init', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ privateKey, passphrase }),
+      });
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const keyText = event.target.result;
-      setPrivateKey(keyText);
-    };
-    reader.readAsText(file);
-  };
+      const data = await res.json();
 
-  if (isLoggedIn) {
-    return null; 
+      if (res.ok && data.token) {
+        setSessionToken(data.token);
+        router.push('/');
+      } else {
+        console.error("Login failed:", data.error);
+      }
+    } catch (err) {
+      console.error("Login error:", err);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -54,20 +71,22 @@ export default function Login() {
             type="password"
             placeholder="Passphrase"
             required
-            onChange={(e) => setInputValue(e.target.value)}
+            onChange={(e) => setPassphrase(e.target.value)}
             className="w-full p-2 mb-4 bg-base-300 rounded text-base focus:outline-none focus:ring-2 focus:ring-primary"
           />
-          <input
-            type="file"
-            accept=""
-            onChange={handleKeyUpload}
-            className="w-full p-2 mb-4 bg-base-300 rounded text-base text-white file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:opacity-80"
-          />
+          <button
+            type="button"
+            onClick={handleSelectKeyFile}
+            className="w-full p-2 mb-4 bg-secondary text-white rounded hover:opacity-80"
+          >
+            Select Private Key
+          </button>
           <button
             type="submit"
             className="w-full p-2 bg-primary text-white rounded hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-primary"
+            disabled={isSubmitting}
           >
-            Login
+            {isSubmitting ? 'Logging in...' : 'Login'}
           </button>
         </form>
       </div>

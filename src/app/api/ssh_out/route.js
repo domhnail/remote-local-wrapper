@@ -1,14 +1,15 @@
 import { Client } from 'ssh2';
+import { getSession } from '@/app/lib/sessionStore';
 
 export async function POST(req) {
-  const {
-    host,
-    port,
-    username,
-    privateKey,
-    passphrase,
-    command
-  } = await req.json();
+  const { token, host, port, username, command } = await req.json();
+
+  const session = getSession(token);
+  if (!session) {
+    return new Response("Invalid or expired session token.", { status: 401 });
+  }
+
+  const { privateKey, passphrase } = session;
 
   if (!command || typeof command !== "string") {
     return new Response("Command is required and must be a string.", { status: 400 });

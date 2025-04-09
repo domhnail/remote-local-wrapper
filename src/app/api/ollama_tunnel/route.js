@@ -2,14 +2,14 @@ import { Client } from 'ssh2';
 import net from 'net';
 
 import { activeTunnels } from '../_tunnelStore';
+import { getSession } from '@/app/lib/sessionStore';
 
 export async function POST(req) {
     let {
+      token,
       host,
       port,
       username,
-      privateKey,
-      passphrase,
       localPort,
       remoteHost,
       remotePort,
@@ -22,7 +22,14 @@ export async function POST(req) {
       model = "gemma:latest"
     }
 
-    if (!host || !port || !username || !privateKey) {
+    const session = getSession(token);
+    if (!session) {
+      return Response.json({ error: 'Invalid or expired session token' }, { status: 401 });
+    }
+  
+    const { privateKey, passphrase } = session;
+
+    if (!host || !port || !username) {
       console.error("Missing required parameters:");
       console.log("Host:", host);
       console.log("Port:", port);

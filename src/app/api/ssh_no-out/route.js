@@ -1,23 +1,30 @@
 import { Client } from 'ssh2';
+import { getSession } from '@/app/lib/sessionStore';
 
 export async function POST(req) {
-  const {
-    host,
-    port,
-    username,
-    privateKey,
-    passphrase,
-    command
-  } = await req.json();
+  const { token, host, port, username, command } = await req.json();
+
+  const session = getSession(token);
+  if (!session) {
+    return Response.json({ error: "Invalid or expired session token" }, { status: 401 });
+  }
+
+  const { privateKey, passphrase } = session;
+
+  if (!command || typeof command !== "string") {
+    return Response.json({ error: "Command must be a non-empty string." }, { status: 400 });
+  }
 
   return new Promise((resolve, reject) => {
     const conn = new Client();
+
     conn.on('ready', () => {
       console.log('Client :: ready');
 
       //this puts the command into a background terminal
-      const backgroundCommand = `nohup ${command} > /dev/null 2>&1 &`; //the second part '> /dev/null 2>&1 &', passes the output from the command into the void
-      //executing based on that set up
+      const backgroundCommand = `nohup ${command} > /dev/null 2>&1 &`;
+
+      //executing based on that setup
       conn.exec(backgroundCommand, (err, stream) => {
         if (err) {
           conn.end();
@@ -42,11 +49,13 @@ export async function POST(req) {
         });
       });
     });
+
     conn.on('error', (err) => {
       //or we error out
       console.error('SSH connection error:', err);
       return resolve(Response.json({ error: err.message }, { status: 500 }));
     });
+
     //the connection
     conn.connect({
       host,

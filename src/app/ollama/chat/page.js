@@ -21,15 +21,13 @@ export default function OllamaChat() {
 
   // login params
   const { settings } = useSettings();
-  const passphrase = useAuthStore((state) => state.passphrase);
-  const privateKey = useAuthStore((state) => state.privateKey);
+  const token = useAuthStore((state) => state.sessionToken);
 
   const tunnelRequest = {
     "host": settings.domain,
     "port": settings.hostPort,
     "username": settings.hostName,
-    "privateKey": privateKey,
-    "passphrase": passphrase,
+    "token": token,
     "localPort": settings.ollamaPort,
     "remoteHost": "localhost",
     "remotePort": settings.ollamaPort,
@@ -41,8 +39,7 @@ export default function OllamaChat() {
     "host": settings.domain,
     "port": settings.hostPort,
     "username": settings.hostName,
-    "privateKey": privateKey,
-    "passphrase": passphrase,
+    "token": token,
     "command": "$HOME/.ssh_scripts/.ollama_control start-server"
   }
 
@@ -50,8 +47,7 @@ export default function OllamaChat() {
     "host": settings.domain,
     "port": settings.hostPort,
     "username": settings.hostName,
-    "privateKey": privateKey,
-    "passphrase": passphrase,
+    "token": token,
     "command": "$HOME/.ssh_scripts/.ollama_control list-models"
   }
 
@@ -86,8 +82,7 @@ export default function OllamaChat() {
           "host": settings.domain,
           "port": settings.hostPort,
           "username": settings.hostName,
-          "privateKey": privateKey,
-          "passphrase": passphrase,
+          "token": token,
           command: "kill -9 $(lsof -t -i :11434) 2>/dev/null || fuser -k 11434/tcp"
         }),
       });

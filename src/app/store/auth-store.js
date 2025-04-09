@@ -1,10 +1,8 @@
 import { create } from 'zustand';
 
 const useAuthStore = create((set) => ({
-  passphrase: '',
-  privateKey: '',
-  setPassphrase: (passphrase) => set({ passphrase }),
-  setPrivateKey: (privateKey) => set({ privateKey }),
+  sessionToken: '',
+  setSessionToken: (token) => set({ sessionToken: token }),
 }));
 
 export default useAuthStore;

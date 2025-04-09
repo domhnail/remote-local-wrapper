@@ -12,16 +12,15 @@ export default function ComfyUi() {
 
   //get parameters
   const { settings } = useSettings();
-  const passphrase = useAuthStore((state) => state.passphrase);
-  const privateKey = useAuthStore((state) => state.privateKey);
-  
+  const token = useAuthStore((state) => state.sessionToken);
+  console.log("Token: ", token); // Check if token is valid and present
+
   //request for tunneling
   const tunnelRequest = {
+    token,
     "host": settings.domain,
     "port": settings.hostPort,
     "username": settings.hostName,
-    "privateKey": privateKey,
-    "passphrase": passphrase,
     "localPort": settings.comfyPort,
     "remoteHost": "localhost",
     "remotePort": settings.comfyPort
@@ -29,21 +28,19 @@ export default function ComfyUi() {
 
   //request for comfy starting
   const comfyStartReq = {
+    token,
     "host": settings.domain,
     "port": settings.hostPort,
     "username": settings.hostName,
-    "privateKey": privateKey,
-    "passphrase": passphrase,
     "command": "$HOME/.ssh_scripts/.comfy_start"
   }
 
   //request for comfy killing
   const killRequest = {
+    token,
     "host": settings.domain,
     "port": settings.hostPort,
     "username": settings.hostName,
-    "privateKey": privateKey,
-    "passphrase": passphrase,
     "command": "$HOME/.ssh_scripts/.comfy_kill"
   };
 
