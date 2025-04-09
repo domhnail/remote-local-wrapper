@@ -49,7 +49,6 @@ export default function RootLayout({ children }) {
               <div className="nav-container">
                 <Link className="transition-all px-3 py-2 text-base font-medium hover:border-b-4 border-b-accent m-4" href={'/'}>Home</Link>
                 <Link className="transition-all px-3 py-2 text-base font-medium hover:border-b-4 border-b-accent m-4" href={'/login'}>Login</Link>
-                <Link className="transition-all px-3 py-2 text-base font-medium hover:border-b-4 border-b-accent m-4" href={'/logout'}>Logout</Link>
                 <Link className="transition-all px-3 py-2 text-base font-medium hover:border-b-4 border-b-accent m-4" href={'/comfyui'}>ComfyUi</Link>
                 <Link className="transition-all px-3 py-2 text-base font-medium hover:border-b-4 border-b-accent m-4" href={'/ollama'}>Ollama</Link>
                 <Link className="transition-all px-3 py-2 text-base font-medium hover:border-b-4 border-b-accent m-4" href={'/settings'}>Settings</Link>

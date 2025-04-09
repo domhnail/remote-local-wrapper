@@ -1,11 +1,4 @@
-import Image from "next/image";
 import Link from "next/link";
-
-//koboldai.net for inspiration
-// List item for models
-// Input field to download model from ollama
-// one ollama chat page and one manage models (download model, list models, list...)
-// list of models with delete option
 
 export default function Home() {
   return (
