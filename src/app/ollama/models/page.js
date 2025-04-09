@@ -176,7 +176,7 @@ export default function OllamaModels() {
       </div>
 
       {/* Download Model Form */}
-      <form form onSubmit={(e) => {
+      <form onSubmit={(e) => {
             e.preventDefault();
             const formData = new FormData(e.target);
             const model = formData.get('model');
